@@ -5,6 +5,7 @@ import pathlib
 import jupyter_client
 import typing
 import csv
+import re
 from textwrap import dedent
 from pprint import pprint
 
@@ -24,6 +25,11 @@ def find_kernel_name(kernel_spec_manager, language):
         if spec['spec']['language'].lower() == language:
             return name
     raise ValueError(f"No kernel found for {language}")
+
+
+def format_traceback(traceback):
+    ansi_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+    return ansi_pattern.sub('', traceback)
 
 
 def execute_statement(client, statement):
@@ -108,8 +114,12 @@ def main():
             raw_code = dedent(path.read_text())
             result = execute_statement(client, raw_code)
 
+            # Exception occurred, write traceback and throw error
             if isinstance(result, ErrorResponse):
-                raise RuntimeError(result.traceback)
+                clean_traceback = format_traceback(''.join(result.traceback))
+                traceback_path = pathlib.Path(path.stem + ".traceback")
+                traceback_path.write_text(clean_traceback)
+                raise RuntimeError(clean_traceback)
 
             # Store code stdout response
             result_path = pathlib.Path(path.stem + ".result")
