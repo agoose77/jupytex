@@ -1,0 +1,107 @@
+%% This program is free software; you can redistribute it and/or
+%% modify it under the terms of the GNU General Public License
+%% as published by the Free Software Foundation; either version 2
+%% of the License, or (at your option) any later version.
+%%
+%% This program is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%%
+%% You should have received a copy of the GNU General Public License
+%% along with this program; if not, write to the Free Software
+%% Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+%%
+%% python.sty author: Martin R. Ehmsen, ehmsen@imada.sdu.dk.
+%% Department of Mathematics and Computer Science,
+%% University of Southern Denmark, DK
+%%
+%% jupyter.sty author: Angus Hollands
+%%
+%% You can find an online copy of the GPL at
+%% http://www.gnu.org/copyleft/gpl.html .
+%%
+%% Note: shell-escape needs to be activated for this to work.
+%% This can either be done by passing -shell-escape as an option to
+%% latex or by adding/changing "shell_escape = t" in your texmf.cnf .
+
+\NeedsTeXFormat{LaTeX2e}[1994/12/01]
+\ProvidesPackage{jupyter}[2018/02/27 v0.1 Code execution in LaTeX]
+\RequirePackage{etoolbox}
+\RequirePackage{verbatim}
+\RequirePackage{color}
+\RequirePackage{ifplatform}
+\RequirePackage{datetime}
+\RequirePackage{keyval}
+\RequirePackage{xparse}
+
+\newwrite\@out
+\newwrite\@module
+\newwrite\@BlocksFile
+\newread\@retcode
+
+% Put the resulting Python code in separate files.
+\newcounter{@CodeEnvironmentCounter}
+\setcounter{@CodeEnvironmentCounter}{1}
+
+\newcommand{\@RelativePath}[1]{%
+  #1%latex_code_\jobname/#1
+}
+
+\AtBeginDocument{
+    % Makes a dependency on this file, causing PDF regeneration AFTER execution
+    \immediate\openout\@BlocksFile=\jobname.blocks
+    \InputIfFileExists{\jobname.timestamp}{}{}
+}
+
+\AfterEndDocument{
+  \immediate\closeout\@BlocksFile
+  \immediate\write18{python3 watcher.py}
+}
+
+\def\@DefaultSession{}
+\def\@DefaultKernel{}
+
+\define@key{code_keys}{kernel}{\def\mm@kernel{#1}}
+\define@key{code_keys}{session}{\def\mm@session{#1}}
+
+\begingroup \catcode `|=0 \catcode `[=1
+\catcode`]=2 \catcode `\{=12 \catcode `\}=12
+\catcode`\\=12 |gdef|@xcode#1\end{code}[|immediate|write|@out[#1]|end[code]]
+|endgroup
+
+% Code environment
+\DeclareDocumentEnvironment{code}{m o}{%
+  % Required arg is language
+  \gdef\@language{#1}
+
+  \newcommand{\@kernel}{\@DefaultKernel}
+  \newcommand{\@session}{\@DefaultSession}
+
+  % If keyword args given, extract them
+  \IfValueTF{#2}
+  {
+    \setkeys{code_keys}{#2}%
+    \ifdef{\mm@kernel}{\renewcommand\@kernel{\mm@kernel}}{}
+    \ifdef{\mm@session}{\renewcommand\@session{\mm@session}}{}
+  }{}
+
+  \gdef\@outname{\@RelativePath{\jobname\arabic{@CodeEnvironmentCounter}.code}}
+  \gdef\@resultname{\@RelativePath{\jobname\arabic{@CodeEnvironmentCounter}.result}}.
+
+  % Write name of code file, language, kernel, and session to BlocksFile
+  \immediate\write\@BlocksFile{\@outname,\@language,\@kernel,\@session}
+
+  % Now capture code to code file
+  \immediate\openout\@out=\@outname % Open code file
+  \newlinechar='15
+  \begingroup \catcode`\^^M=12 %
+  \let\do\@makeother\dospecials\obeyspaces%
+  \@xcode
+}
+{
+  \endgroup
+  \immediate\closeout\@out
+  \InputIfFileExists{\@resultname}{}{}
+  \immediate\stepcounter{@CodeEnvironmentCounter}
+}
