@@ -1,5 +1,7 @@
 [console_scripts]
 jupytex-clean = jupytex.tools:clean
+jupytex-execute = jupytex.make:execute
+jupytex-hash = jupytex.make:write_hash
 jupytex-install = jupytex.tools:install
-jupytex-make = jupytex.tools:make
+jupytex-make = jupytex.make:make
 

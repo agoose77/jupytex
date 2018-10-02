@@ -17,9 +17,12 @@ setuptools.setup(
         'console_scripts': [
             'jupytex-install=jupytex.tools:install',
             'jupytex-clean=jupytex.tools:clean',
-            'jupytex-make=jupytex.tools:make',
+            'jupytex-make=jupytex.make:make',
+            'jupytex-execute=jupytex.make:execute',
+            'jupytex-hash=jupytex.make:write_hash',
         ],
     },
+    install_requires=['colorama'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

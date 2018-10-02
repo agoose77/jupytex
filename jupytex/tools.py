@@ -2,16 +2,10 @@ import pathlib
 import itertools
 import argparse
 import subprocess
-import sys
 from importlib import resources
 
 DATA_NAMES = (".latexmkrc", "jupytex.sty")
 GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
-
-
-def make():
-    sys_args = sys.argv[1:]
-    subprocess.call(["latexmk", "--shell-escape", *sys_args])
 
 
 def clean():

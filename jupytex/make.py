@@ -1,13 +1,40 @@
-#!/usr/bin/env python3
-
-import argparse
-import pathlib
-import jupyter_client
-import typing
-import csv
-import re
 from textwrap import dedent
 from pprint import pprint
+import jupyter_client
+import subprocess
+import argparse
+import pathlib
+import hashlib
+import typing
+import sys
+import csv
+import re
+
+
+DATA_NAMES = (".latexmkrc", "jupytex.sty")
+GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
+
+
+def make():
+    sys_args = sys.argv[1:]
+    subprocess.call(["latexmk", "--shell-escape", *sys_args])
+
+
+def write_hash():
+    """Watch for any changed files in current job, and indicate job hash updated where necessary"""
+    cwd = pathlib.Path.cwd()
+    for code_file_path in cwd.glob("*.blocks"):
+        total_hash = hashlib.md5()
+
+        with open(code_file_path) as f:
+            reader = csv.DictReader(f, fieldnames=['path', 'language', 'kernel', 'session'])
+            for row in reader:
+                path = cwd / row['path']
+                raw_contents = dedent(path.read_text())
+                total_hash.update(raw_contents.encode('utf-8'))
+
+        hash_file_path = code_file_path.parent / (code_file_path.stem + ".hash")
+        hash_file_path.write_text(total_hash.hexdigest())
 
 
 class OutputResponse(typing.NamedTuple):
@@ -71,7 +98,7 @@ def unlink_kernel_config_files():
         p.unlink()
 
 
-def main():
+def execute():
     parser = argparse.ArgumentParser()
     parser.add_argument('hash_file_path', type=pathlib.Path)
     args = parser.parse_args()
@@ -84,7 +111,7 @@ def main():
 
     session_info_to_kernel_id = {}
     kernel_id_to_client = {}
-    print(f"\u001b[0mHash must have changed for {block_file_path} code file; re-executing...")
+    print(f"Hash must have changed for {block_file_path} code file; re-executing...")
 
     with open(block_file_path) as f:
         reader = csv.DictReader(f, fieldnames=['path', 'language', 'kernel', 'session'])
@@ -135,7 +162,3 @@ def main():
 
     from time import time
     stamp_file_path.write_text(f"%{time()}")
-
-
-if __name__ == "__main__":
-    main()
