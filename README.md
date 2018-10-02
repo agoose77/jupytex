@@ -11,6 +11,7 @@ Jupyter execution of LaTex `code` environments
     Some source code
 \end{code}
 ```
+. See the configuration section for valid options in `opts`.
 5. Run `jupytex-make` (which is a pass-through to `latexmk --shell-escape`)
 6. Run `jupytex-clean` to remove JupyTex-related run files.
 
