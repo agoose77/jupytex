@@ -1,9 +1,9 @@
-# JupyTex
-Jupyter execution of LaTex `code` environments
+# JupyTe
+Jupyter execution of LaTeX `code` environments
 
 ## How to use
-1. Install JupyTex `pip install git+https://github.com/agoose77/jupytex.git#egg=jupytex`
-2. Run `jupytex-install` in LaTex project directory
+1. Install JupyTeX `pip install git+https://github.com/agoose77/jupytex.git#egg=jupytex`
+2. Run `jupytex-install` in LaTeX project directory
 3. Add `\usepackage{juytex}` to the document header
 4. Declare code environments with
 ```
@@ -15,7 +15,7 @@ Jupyter execution of LaTex `code` environments
 5. Run `jupytex-make` (which is a pass-through to `latexmk --shell-escape`)
 6. Run `jupytex-clean` to remove JupyTex-related run files.
 
-## JupyTex flow control
+## JupyTeX flow control
 1. `jupytex.sty` declares dependency upon `\jobname.timetamp`
 1. `jupytex.sty` macro writes code blocks to numbered .code files and attempts to include results
 1. Code 'blocks' are written to a `\jobname.blocks` csv file
