@@ -22,5 +22,6 @@ def main():
         hash_file_path = code_file_path.parent / (code_file_path.stem + ".hash")
         hash_file_path.write_text(total_hash.hexdigest())
 
+
 if __name__ == "__main__":
     main()

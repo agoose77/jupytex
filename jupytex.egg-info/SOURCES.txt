@@ -1,0 +1,10 @@
+README.md
+jupytex/__init__.py
+jupytex/execute.py
+jupytex/tools.py
+jupytex/watcher.py
+jupytex.egg-info/PKG-INFO
+jupytex.egg-info/SOURCES.txt
+jupytex.egg-info/dependency_links.txt
+jupytex.egg-info/entry_points.txt
+jupytex.egg-info/top_level.txt

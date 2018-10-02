@@ -16,7 +16,7 @@
 %% Department of Mathematics and Computer Science,
 %% University of Southern Denmark, DK
 %%
-%% jupyter.sty author: Angus Hollands
+%% jupytex.sty author: Angus Hollands
 %%
 %% You can find an online copy of the GPL at
 %% http://www.gnu.org/copyleft/gpl.html .
@@ -26,7 +26,7 @@
 %% latex or by adding/changing "shell_escape = t" in your texmf.cnf .
 
 \NeedsTeXFormat{LaTeX2e}[1994/12/01]
-\ProvidesPackage{jupyter}[2018/02/27 v0.1 Code execution in LaTeX]
+\ProvidesPackage{jupytex}[2018/02/27 v0.1 Code execution in LaTeX]
 \RequirePackage{etoolbox}
 \RequirePackage{verbatim}
 \RequirePackage{ifplatform}
@@ -54,7 +54,7 @@
 
 \AfterEndDocument{
   \immediate\closeout\@BlocksFile
-  \immediate\write18{python3 watcher.py}
+  \immediate\write18{python3 -m jupytex.watcher}
 }
 
 \def\@DefaultSession{}
