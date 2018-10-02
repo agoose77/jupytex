@@ -12,6 +12,7 @@ Jupyter execution of LaTex `code` environments
 \end{code}
 ```
 5. Run `jupytex-make` (which is a pass-through to `latexmk --shell-escape`)
+6. Run `jupytex-clean` to remove JupyTex-related run files.
 
 ## JupyTex flow control
 1. jupytex.sty declares dependency upon `\jobname.timetamp`
