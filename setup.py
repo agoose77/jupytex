@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.1",
     author="Angus Hollands",
     author_email="goosey15@gmail.com",
-    description="Jupyter execution of Tex code environments.",
+    description="Jupyter execution of TeX code environments.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/agoose77/jupytex",
