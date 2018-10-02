@@ -1,4 +1,4 @@
-# JupyTe
+# JupyTeX
 Jupyter execution of LaTeX `code` environments
 
 ## How to use
