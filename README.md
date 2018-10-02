@@ -16,8 +16,8 @@ Jupyter execution of LaTex `code` environments
 6. Run `jupytex-clean` to remove JupyTex-related run files.
 
 ## JupyTex flow control
-1. jupytex.sty declares dependency upon `\jobname.timetamp`
-1. jupytex.sty macro writes code blocks to numbered .code files and attempts to include results
+1. `jupytex.sty` declares dependency upon `\jobname.timetamp`
+1. `jupytex.sty` macro writes code blocks to numbered .code files and attempts to include results
 1. Code 'blocks' are written to a `\jobname.blocks` csv file
 1. `watcher.py` is invoked for the written blocks file, and the md5 hash for all of the blocks is computed, and written to `\jobname.hash`. In future this should only be performed after the entire document has been processed, and per-kernel-session.
 1. If `\jobname.hash` has been modified, `execute.py` is invoked for the corresponding job, the code blocks executed and results written to .result files. Code blocks which do not write to stdout write an empty results file. `\jobname.timestamp` is updated with new timestamp.
