@@ -4,7 +4,7 @@ Jupyter execution of LaTeX `code` environments
 ## How to use
 1. Install JupyTeX `pip install git+https://github.com/agoose77/jupytex.git#egg=jupytex`
 2. Run `jupytex-install` in LaTeX project directory
-3. Add `\usepackage{juytex}` to the document header
+3. Add `\usepackage{jupytex}` to the document header
 4. Declare code environments with
 ```
 \begin{code}{language}[opts]
