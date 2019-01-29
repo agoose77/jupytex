@@ -1,8 +1,8 @@
-import argparse
 import itertools
 import logging
 import pathlib
 import subprocess
+import typing
 from importlib import resources
 
 logger = logging.getLogger(__name__)
@@ -10,44 +10,39 @@ logger = logging.getLogger(__name__)
 DATA_NAMES = (".latexmkrc", "jupytex.sty")
 GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
 
-
-def clean():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--full", action='store_true')
-    args = parser.parse_args()
-
-    cwd = pathlib.Path.cwd()
-
-    to_remove = itertools.chain.from_iterable(
-        (cwd.glob(p) for p in GENERATED_PATTERNS))
-    for path in to_remove:
-        path.unlink()
-
-    if args.full:
-        subprocess.run(['latexmk', '-c'])
-
-
-def install():
-    cwd = pathlib.Path.cwd()
-    logger.info(f"Installing Jupytex into {cwd}")
+def install(directory: pathlib.Path):
+    logger.info(f"Installing Jupytex into {directory}")
 
     for name in DATA_NAMES:
         logger.info(f"Copying {name}")
         source = resources.open_text('jupytex', name).read()
-        (cwd / name).write_text(source)
+        (directory / name).write_text(source)
 
     logger.info("Done!")
 
 
-def uninstall():
-    cwd = pathlib.Path.cwd()
-    logger.info(f"Uninstalling Jupytex from {cwd}")
+def uninstall(directory: pathlib.Path):
+    logger.info(f"Uninstalling Jupytex from {directory}")
 
     for name in DATA_NAMES:
         logger.info(f"Removing {name}")
 
-        resource_path = cwd / name
+        resource_path = directory / name
         if resource_path.exists():
             resource_path.unlink()
 
     logger.info("Done!")
+
+
+def make(sys_args: typing.List[str]):
+    subprocess.call(["latexmk", "--shell-escape", *sys_args])
+
+
+def clean(directory: pathlib.Path, sys_args: typing.List[str]):
+    for path in itertools.chain.from_iterable((directory.glob(p) for p in GENERATED_PATTERNS)):
+        logger.info(f"Removing {path}")
+        path.unlink()
+
+    if sys_args:
+        subprocess.run(['latexmk', *sys_args])
+

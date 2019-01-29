@@ -15,12 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': [
-            'jupytex-install=jupytex.tools:install',
-            'jupytex-uninstall=jupytex.tools:install',
-            'jupytex-clean=jupytex.tools:clean',
-            'jupytex-make=jupytex.make:make',
-            'jupytex-execute=jupytex.make:execute',
-            'jupytex-hash=jupytex.make:write_hash',
+            'jupytex=jupytex.__main__:main',
         ],
     },
     install_requires=['colorama', 'jupyter_client'],

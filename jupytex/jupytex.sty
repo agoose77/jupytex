@@ -54,7 +54,9 @@
 
 \AfterEndDocument{
   \immediate\closeout\@BlocksFile
-  \immediate\write18{jupytex-hash}
+  % Run `jupytex hash` on code blocks, producing a `.hash` file
+  % The `.hash` file is a dependency for the PDF output in latexmk
+  \immediate\write18{jupytex hash}
 }
 
 \def\@DefaultSession{}

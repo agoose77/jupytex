@@ -1,15 +1,13 @@
 import argparse
 import csv
 import hashlib
+import logging
 import pathlib
 import queue
 import re
-import subprocess
-import sys
 import typing
 from textwrap import dedent
 from time import time
-import logging
 
 import jupyter_client
 
@@ -18,25 +16,21 @@ GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
 logger = logging.getLogger(__name__)
 
 
-def make():
-    sys_args = sys.argv[1:]
-    subprocess.call(["latexmk", "--shell-escape", *sys_args])
+def write_blocks_hash(directory: pathlib.Path):
+    """Watch for any changed files in current job, and indicate job hash updated where necessary.
 
-
-def write_hash():
-    """Watch for any changed files in current job, and indicate job hash updated where necessary"""
-    cwd = pathlib.Path.cwd()
-    for code_file_path in cwd.glob("*.blocks"):
+    :param directory: Path to directory containing blocks files
+    """
+    for code_file_path in directory.glob("*.blocks"):
         total_hash = hashlib.md5()
 
         with open(code_file_path) as f:
             reader = csv.DictReader(f, fieldnames=['path', 'language', 'kernel', 'session'])
             for row in reader:
-                path = cwd / row['path']
-                raw_contents = dedent(path.read_text())
+                raw_contents = dedent((directory / row['path']).read_text())
                 total_hash.update(raw_contents.encode('utf-8'))
 
-        hash_file_path = code_file_path.parent / (code_file_path.stem + ".hash")
+        hash_file_path = code_file_path.with_suffix(".hash")
         hash_file_path.write_text(total_hash.hexdigest())
 
 
@@ -57,7 +51,7 @@ class ErrorResponse(typing.NamedTuple):
     traceback: str
 
 
-def format_traceback(traceback):
+def format_traceback(traceback: str) -> str:
     ansi_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
     return ansi_pattern.sub('', traceback)
 
@@ -69,11 +63,15 @@ def unlink_kernel_config_files():
         p.unlink()
 
 
-def iter_code_blocks(block_file_path: pathlib.Path) -> typing.Iterator[CodeBlock]:
-    with open(block_file_path) as f:
+def iter_code_blocks(file_path: pathlib.Path) -> typing.Iterator[CodeBlock]:
+    """Yield CodeBlock instances from a .blocks file
+
+    :param file_path: Path to blocks file
+    """
+    with open(file_path) as f:
         reader = csv.DictReader(f, fieldnames=['path', 'language', 'kernel', 'session'])
         for row in reader:
-            path = block_file_path.parent / row['path']
+            path = file_path.parent / row['path']
             kernel = row['kernel']
             language = row['language']
             session = row['session']
@@ -182,17 +180,13 @@ class SessionKernelManager:
         client.shutdown()
 
 
-def execute():
+def execute(file_path: pathlib.Path):
     """Execute the code blocks referenced in a blocks file.
 
     This function is called by latexmk when the hash file (given on the commandline) is modified.
     """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('hash_file_path', type=pathlib.Path)
-    args = parser.parse_args()
-
     # Hash file changed, so run code
-    block_file_path = args.hash_file_path.parent / (args.hash_file_path.stem + ".blocks")
+    block_file_path = file_path.parent / (file_path.stem + ".blocks")
     logger.info(f"Hash must have changed for {block_file_path} code file; re-executing...")
 
     session_kernel_manager = SessionKernelManager()
@@ -231,7 +225,7 @@ def execute():
         session_kernel_manager.close_kernel(kernel_id)
 
     # Update timestamp dependency file
-    stamp_file_path = args.hash_file_path.parent / (args.hash_file_path.stem + ".timestamp")
+    stamp_file_path = file_path.with_suffix(".timestamp")
     stamp_file_path.write_text(f"%{time()}")
 
     unlink_kernel_config_files()
