@@ -157,12 +157,21 @@ class SessionKernelManager:
             kernel_id = self._session_info_to_kernel_id[session_info]
 
         except KeyError:
-            self._session_info_to_kernel_id[session_info] = kernel_id = self.kernel_manager.start_kernel(
-                kernel_name=kernel_name)
-            client = self.kernel_manager.get_kernel(kernel_id).client()
-            self._kernel_id_to_session[kernel_id] = session_info, client
+            # Try and load existing kernel from kernel name
+            try:
+                connection_file = jupyter_client.find_connection_file(kernel_name)
+                print(kernel_name, "KERNEEELEL", connection_file)
+            except IOError:
+                kernel_id = self._session_info_to_kernel_id[session_info] = \
+                    self.kernel_manager.start_kernel(kernel_name=kernel_name)
+                client = self.kernel_manager.get_kernel(kernel_id).client()
+            else:
+                client = jupyter_client.KernelClient()
+                client.load_connection_file(connection_file)
+
             client.start_channels()
             client.wait_for_ready(2)
+            self._kernel_id_to_session[kernel_id] = session_info, client
 
         return kernel_id
 
