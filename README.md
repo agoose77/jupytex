@@ -1,5 +1,5 @@
 # JupyTeX
-Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the results. Similar in concept to [PythonTex](https://github.com/gpoore/PythonTex), but focusses on code _execution_, and avoids any language specific features.
+Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the results. Similar in concept to [PythonTex](https://github.com/gpoore/PythonTex), but focuses on code _execution_, and avoids any language specific features.
 
 ## How to use
 1. Install JupyTeX with `pip install git+https://github.com/agoose77/jupytex.git#egg=jupytex`
