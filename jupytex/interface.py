@@ -20,8 +20,8 @@ SESSION_INFO_TYPE = typing.Tuple[str, typing.Optional[str]]
 class CodeBlock(typing.NamedTuple):
     path: pathlib.Path
     language: str
-    session: str = None
-    kernel: str = None
+    session: str
+    kernel: str
 
 
 class OutputResponse(typing.NamedTuple):
@@ -90,7 +90,7 @@ class SessionKernelManager:
         self._kernel_id_to_session: typing.Dict[str, typing.Tuple[SESSION_INFO_TYPE, jupyter_client.KernelClient]] = {}
 
     @property
-    def kernel_ids(self) -> typing.Set[str]:
+    def session_ids(self) -> typing.Set[str]:
         return set(self._kernel_id_to_session)
 
     def find_kernel_name(self, language: str) -> str:
@@ -106,14 +106,14 @@ class SessionKernelManager:
         except KeyError:
             raise ValueError(f"No kernel found for {language}. Available kernels: {[*language_to_name]}")
 
-    def execute_code(self, kernel_id: str, code: str):
+    def execute_code(self, session_id: str, code: str):
         """Execute code in the kernel associated with the given kernel ID.
 
-        :param kernel_id: ID of appropriate kernel
+        :param session_id: ID of appropriate session
         :param code: string of code to execute
         :return: response from kernel
         """
-        _, client = self._kernel_id_to_session[kernel_id]
+        _, client = self._kernel_id_to_session[session_id]
         message_id = client.execute(code, allow_stdin=False)
         assert client.is_alive()
 
@@ -144,16 +144,15 @@ class SessionKernelManager:
                                          content['traceback'])
         return response
 
-    def find_or_create_kernel_id(self, kernel_name: str, session_name: str = None) -> str:
+    def find_or_create_session(self, kernel_name: str, session_name: str = None) -> str:
         """
         Find the existing kernel for a given kernel name and session name, or create.
 
         :param kernel_name: name of kernel
         :param session_name: name of session or None
-        :return: ID of kernel
+        :return: ID of session
         """
         session_info = kernel_name, session_name
-
         try:
             kernel_id = self._session_info_to_kernel_id[session_info]
 
@@ -167,34 +166,33 @@ class SessionKernelManager:
 
         return kernel_id
 
-    def close_kernel(self, kernel_id: str):
+    def close_session(self, session_id: str):
         """Close kernel with given ID.
 
-        :param kernel_id: ID of kernel
+        :param session_id: ID of session
         :return:
         """
-        session_info, client = self._kernel_id_to_session.pop(kernel_id)
+        session_info, client = self._kernel_id_to_session.pop(session_id)
         del self._session_info_to_kernel_id[session_info]
         client.shutdown()
 
+        # Wait for shutdown reply
+        while True:
+            try:
+                message = client.get_iopub_msg(timeout=None)
+            except queue.Empty:
+                continue
+            if message["msg_type"] == "shutdown_reply":
+                return
 
-def execute_blocks(hash_file_path: pathlib.Path):
-    """Execute the code blocks referenced in a blocks file.
 
-    This function is called by latexmk when the hash file (given on the commandline) is modified.
-
-    :param hash_file_path: Path to .hash file
-    """
-    block_file_path = hash_file_path.with_suffix(".blocks")
-    logger.info(f"Hash must have changed for {block_file_path} code file; re-executing...")
-
-    session_kernel_manager = SessionKernelManager()
+def process_blocks(session_kernel_manager: SessionKernelManager, block_file_path: pathlib.Path):
     for code_block in iter_code_blocks(block_file_path):
         kernel_name = code_block.kernel
         if not kernel_name:
             kernel_name = session_kernel_manager.find_kernel_name(code_block.language)
 
-        session = session_kernel_manager.find_or_create_kernel_id(kernel_name, code_block.session)
+        session = session_kernel_manager.find_or_create_session(kernel_name, code_block.session)
 
         # Execute code
         raw_code = dedent(code_block.path.read_text())
@@ -211,20 +209,38 @@ def execute_blocks(hash_file_path: pathlib.Path):
 
         # Exception occurred, write traceback and throw error
         if isinstance(result, ErrorResponse):
-            clean_traceback = format_traceback(''.join(result.traceback))
-            stderr_path.write_text(clean_traceback)
-            raise RuntimeError(clean_traceback)
+            traceback = '\n'.join(result.traceback)
+            stderr_path.write_text(format_traceback(traceback))
+            raise RuntimeError(
+                f"Error in executing code for kernel={kernel_name}, session={code_block.session or None}:\n{traceback}")
 
         # Store code stdout response
         output = result.text if isinstance(result, OutputResponse) else ''
         stdout_path.write_text(output)
 
-    # Close all running kernels
-    for kernel_id in session_kernel_manager.kernel_ids:
-        session_kernel_manager.close_kernel(kernel_id)
+
+def execute_blocks(hash_file_path: pathlib.Path):
+    """Execute the code blocks referenced in a blocks file.
+
+    This function is called by latexmk when the hash file (given on the commandline) is modified.
+
+    :param hash_file_path: Path to .hash file
+    """
+    block_file_path = hash_file_path.with_suffix(".blocks")
+    logger.info(f"Hash must have changed for {block_file_path} code file; re-executing...")
+
+    session_kernel_manager = SessionKernelManager()
+
+    try:
+        process_blocks(session_kernel_manager, block_file_path)
+
+    finally:
+        # Close all running kernels
+        for kernel_id in session_kernel_manager.session_ids:
+            session_kernel_manager.close_session(kernel_id)
+
+        unlink_kernel_config_files()
 
     # Update timestamp dependency file
     stamp_file_path = hash_file_path.with_suffix(".timestamp")
     stamp_file_path.write_text(f"%{time()}")
-
-    unlink_kernel_config_files()

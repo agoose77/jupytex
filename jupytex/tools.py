@@ -1,4 +1,3 @@
-import itertools
 import logging
 import pathlib
 import subprocess
@@ -39,6 +38,6 @@ def make(sys_args: typing.List[str]):
     subprocess.call(["latexmk", "--shell-escape", *sys_args])
 
 
-def clean(sys_args: typing.List[str], full: bool=False):
+def clean(sys_args: typing.List[str], full: bool = False):
     clean_type = "-C" if full else "-c"
     subprocess.run(['latexmk', clean_type, *sys_args])

@@ -4,6 +4,7 @@ push @generated_exts, 'timestamp', 'hash', 'blocks';
 # Additional files per code environment:
 $clean_ext .= " %R*.code";
 $clean_ext .= " %R*.result";
+$clean_ext .= " %R*.traceback";
 
 $jupytex = 'jupytex execute %S %O';
 
