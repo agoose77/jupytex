@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="jupytex",
-    version="0.0.1",
+    version="0.0.2",
     author="Angus Hollands",
     author_email="goosey15@gmail.com",
     description="Jupyter execution of TeX code environments.",
