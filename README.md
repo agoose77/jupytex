@@ -30,4 +30,4 @@ Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the r
 1. `latexmk` performs a new pass for the dependencies upon `\jobname.timestamp`
 
 ## Configuration
-Each code block must be given a language. One can specify the Jupyter kernel name with a `kernel` key parameter, which will be used instead of the language if present. In addition, a `session` key may be passed to create a distinct kernel for associated with the kernel-session pair.
+Each code block must be given a language. One can specify the Jupyter kernel name with a `kernel` key parameter, which will be used instead of the language if present. In addition, a `session` key may be passed to create a distinct kernel for associated with the kernel-session pair. One can also access an existing kernel, using the `kernel` parameter, passing the name of a connection file.
