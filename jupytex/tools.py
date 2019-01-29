@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 DATA_NAMES = (".latexmkrc", "jupytex.sty")
 GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
 
+
 def install(directory: pathlib.Path):
     logger.info(f"Installing Jupytex into {directory}")
 
@@ -45,4 +46,3 @@ def clean(directory: pathlib.Path, sys_args: typing.List[str]):
 
     if sys_args:
         subprocess.run(['latexmk', *sys_args])
-

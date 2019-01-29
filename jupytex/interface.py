@@ -180,13 +180,14 @@ class SessionKernelManager:
         client.shutdown()
 
 
-def execute(file_path: pathlib.Path):
+def execute_blocks(hash_file_path: pathlib.Path):
     """Execute the code blocks referenced in a blocks file.
 
     This function is called by latexmk when the hash file (given on the commandline) is modified.
+
+    :param hash_file_path: Path to .hash file
     """
-    # Hash file changed, so run code
-    block_file_path = file_path.parent / (file_path.stem + ".blocks")
+    block_file_path = hash_file_path.with_suffix(".blocks")
     logger.info(f"Hash must have changed for {block_file_path} code file; re-executing...")
 
     session_kernel_manager = SessionKernelManager()
@@ -225,7 +226,7 @@ def execute(file_path: pathlib.Path):
         session_kernel_manager.close_kernel(kernel_id)
 
     # Update timestamp dependency file
-    stamp_file_path = file_path.with_suffix(".timestamp")
+    stamp_file_path = hash_file_path.with_suffix(".timestamp")
     stamp_file_path.write_text(f"%{time()}")
 
     unlink_kernel_config_files()

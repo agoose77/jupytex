@@ -1,7 +1,7 @@
 import argparse
 import pathlib
 
-from .make import write_blocks_hash, execute
+from .interface import write_blocks_hash, execute_blocks
 from .tools import install, uninstall, make, clean
 
 
@@ -35,8 +35,8 @@ def main():
 
     # Execute script
     execute_parser = subparsers.add_parser("execute")
-    execute_parser.add_argument("file_path", type=pathlib.Path)
-    execute_parser.set_defaults(handler=execute)
+    execute_parser.add_argument("hash_file_path", type=pathlib.Path)
+    execute_parser.set_defaults(handler=execute_blocks)
 
     args, unknown_args = parser.parse_known_args()
 
@@ -48,7 +48,7 @@ def main():
         kwargs['sys_args'] = unknown_args
 
     elif unknown_args:
-            parser.error("unrecognized arguments: {}".format(' '.join(unknown_args)))
+        parser.error("unrecognized arguments: {}".format(' '.join(unknown_args)))
 
     handler = kwargs.pop("handler")
     handler(**kwargs)
