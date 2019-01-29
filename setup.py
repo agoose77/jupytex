@@ -13,8 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/agoose77/jupytex",
     packages=setuptools.find_packages(),
-    entry_points={
-        'console_scripts': [
+    entry_points={'console_scripts': [
             'jupytex=jupytex.__main__:main',
         ],
     },
