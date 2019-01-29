@@ -1,8 +1,11 @@
-import pathlib
-import itertools
 import argparse
+import itertools
+import logging
+import pathlib
 import subprocess
 from importlib import resources
+
+logger = logging.getLogger(__name__)
 
 DATA_NAMES = (".latexmkrc", "jupytex.sty")
 GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
@@ -26,12 +29,25 @@ def clean():
 
 def install():
     cwd = pathlib.Path.cwd()
-
-    print(f"Installing Jupytex into {cwd}")
+    logger.info(f"Installing Jupytex into {cwd}")
 
     for name in DATA_NAMES:
-        print(f"Copying {name}")
+        logger.info(f"Copying {name}")
         source = resources.open_text('jupytex', name).read()
         (cwd / name).write_text(source)
 
-    print("Done!")
+    logger.info("Done!")
+
+
+def uninstall():
+    cwd = pathlib.Path.cwd()
+    logger.info(f"Uninstalling Jupytex from {cwd}")
+
+    for name in DATA_NAMES:
+        logger.info(f"Removing {name}")
+
+        resource_path = cwd / name
+        if resource_path.exists():
+            resource_path.unlink()
+
+    logger.info("Done!")

@@ -16,6 +16,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'jupytex-install=jupytex.tools:install',
+            'jupytex-uninstall=jupytex.tools:install',
             'jupytex-clean=jupytex.tools:clean',
             'jupytex-make=jupytex.make:make',
             'jupytex-execute=jupytex.make:execute',
