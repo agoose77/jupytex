@@ -7,7 +7,7 @@ from .tools import install, uninstall, make, clean
 
 def main():
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(required=True, dest='command')
 
     # Install script
     install_parser = subparsers.add_parser("install")
@@ -41,6 +41,7 @@ def main():
     args, unknown_args = parser.parse_known_args()
 
     kwargs = vars(args)
+    command = kwargs.pop("command")
     requires_sys_args = kwargs.pop("requires_sys_args", False)
 
     # Some args might require any uncaptured arguments

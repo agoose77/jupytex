@@ -86,12 +86,16 @@ class SessionKernelManager:
         self.kernel_spec_manager = jupyter_client.kernelspec.KernelSpecManager()
         self.kernel_manager = jupyter_client.MultiKernelManager()
 
+        self._session_info_to_client: typing.Dict[SESSION_INFO_TYPE, jupyter_client.KernelClient] = {}
         self._session_info_to_kernel_id: typing.Dict[SESSION_INFO_TYPE, str] = {}
-        self._kernel_id_to_session: typing.Dict[str, typing.Tuple[SESSION_INFO_TYPE, jupyter_client.KernelClient]] = {}
 
     @property
-    def session_ids(self) -> typing.Set[str]:
-        return set(self._kernel_id_to_session)
+    def session_infos(self) -> typing.Set[str]:
+        return set(self._session_info_to_client)
+
+    @property
+    def owned_session_infos(self) -> typing.Set[str]:
+        return set(self._session_info_to_kernel_id)
 
     def find_kernel_name(self, language: str) -> str:
         """Find the name of the kernel associated with a given language.
@@ -106,14 +110,14 @@ class SessionKernelManager:
         except KeyError:
             raise ValueError(f"No kernel found for {language}. Available kernels: {[*language_to_name]}")
 
-    def execute_code(self, session_id: str, code: str):
+    def execute_code(self, session_info: SESSION_INFO_TYPE, code: str):
         """Execute code in the kernel associated with the given kernel ID.
 
-        :param session_id: ID of appropriate session
+        :param session_info: session info object
         :param code: string of code to execute
         :return: response from kernel
         """
-        _, client = self._kernel_id_to_session[session_id]
+        client = self._session_info_to_client[session_info]
         message_id = client.execute(code, allow_stdin=False)
         assert client.is_alive()
 
@@ -144,45 +148,42 @@ class SessionKernelManager:
                                          content['traceback'])
         return response
 
-    def find_or_create_session(self, kernel_name: str, session_name: str = None) -> str:
+    def find_or_create_session(self, kernel_name: str, session_name: str = None) -> SESSION_INFO_TYPE:
         """
         Find the existing kernel for a given kernel name and session name, or create.
 
         :param kernel_name: name of kernel
         :param session_name: name of session or None
-        :return: ID of session
+        :return: session info
         """
         session_info = kernel_name, session_name
         try:
-            kernel_id = self._session_info_to_kernel_id[session_info]
+            client = self._session_info_to_client[session_info]
 
         except KeyError:
             # Try and load existing kernel from kernel name
             try:
                 connection_file = jupyter_client.find_connection_file(kernel_name)
-                print(kernel_name, "KERNEEELEL", connection_file)
             except IOError:
-                kernel_id = self._session_info_to_kernel_id[session_info] = \
-                    self.kernel_manager.start_kernel(kernel_name=kernel_name)
+                kernel_id = self.kernel_manager.start_kernel(kernel_name=kernel_name)
                 client = self.kernel_manager.get_kernel(kernel_id).client()
             else:
-                client = jupyter_client.KernelClient()
+                client = jupyter_client.BlockingKernelClient()
                 client.load_connection_file(connection_file)
 
             client.start_channels()
             client.wait_for_ready(2)
-            self._kernel_id_to_session[kernel_id] = session_info, client
+            self._session_info_to_client[session_info] = client
 
-        return kernel_id
+        return session_info
 
-    def close_session(self, session_id: str):
+    def close_session(self, session_info: SESSION_INFO_TYPE):
         """Close kernel with given ID.
 
-        :param session_id: ID of session
+        :param session info: session info
         :return:
         """
-        session_info, client = self._kernel_id_to_session.pop(session_id)
-        del self._session_info_to_kernel_id[session_info]
+        client = self._session_info_to_client[session_info]
         client.shutdown()
 
         # Wait for shutdown reply
@@ -245,8 +246,8 @@ def execute_blocks(hash_file_path: pathlib.Path):
 
     finally:
         # Close all running kernels
-        for kernel_id in session_kernel_manager.session_ids:
-            session_kernel_manager.close_session(kernel_id)
+        for session_info in session_kernel_manager.owned_session_infos:
+            session_kernel_manager.close_session(session_info)
 
         unlink_kernel_config_files()
 
