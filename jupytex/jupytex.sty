@@ -42,13 +42,10 @@
 \newcounter{@CodeEnvironmentCounter}
 \setcounter{@CodeEnvironmentCounter}{1}
 
-\newcommand{\@RelativePath}[1]{%
-  #1%latex_code_\jobname/#1
-}
-
 \AtBeginDocument{
-    % Makes a dependency on this file, causing PDF regeneration AFTER execution
+    % Create blocks file for writing
     \immediate\openout\@BlocksFile=\jobname.blocks
+    % Makes a dependency on this file, causing PDF regeneration AFTER execution
     \InputIfFileExists{\jobname.timestamp}{}{}
 }
 
@@ -86,8 +83,8 @@
     \ifdef{\mm@session}{\renewcommand\@session{\mm@session}}{}
   }{}
 
-  \gdef\@outname{\@RelativePath{\jobname\arabic{@CodeEnvironmentCounter}.code}}
-  \gdef\@resultname{\@RelativePath{\jobname\arabic{@CodeEnvironmentCounter}.result}}.
+  \gdef\@outname{\jobname\arabic{@CodeEnvironmentCounter}.code}
+  \gdef\@resultname{\jobname\arabic{@CodeEnvironmentCounter}.result}
 
   % Write name of code file, language, kernel, and session to BlocksFile
   \immediate\write\@BlocksFile{\@outname,\@language,\@kernel,\@session}

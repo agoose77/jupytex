@@ -39,10 +39,6 @@ def make(sys_args: typing.List[str]):
     subprocess.call(["latexmk", "--shell-escape", *sys_args])
 
 
-def clean(directory: pathlib.Path, sys_args: typing.List[str]):
-    for path in itertools.chain.from_iterable((directory.glob(p) for p in GENERATED_PATTERNS)):
-        logger.info(f"Removing {path}")
-        path.unlink()
-
-    if sys_args:
-        subprocess.run(['latexmk', *sys_args])
+def clean(sys_args: typing.List[str], full: bool=False):
+    clean_type = "-C" if full else "-c"
+    subprocess.run(['latexmk', clean_type, *sys_args])

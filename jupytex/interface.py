@@ -1,4 +1,3 @@
-import argparse
 import csv
 import hashlib
 import logging
@@ -14,6 +13,25 @@ import jupyter_client
 DATA_NAMES = (".latexmkrc", "jupytex.sty")
 GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
 logger = logging.getLogger(__name__)
+
+SESSION_INFO_TYPE = typing.Tuple[str, typing.Optional[str]]
+
+
+class CodeBlock(typing.NamedTuple):
+    path: pathlib.Path
+    language: str
+    session: str = None
+    kernel: str = None
+
+
+class OutputResponse(typing.NamedTuple):
+    text: str
+
+
+class ErrorResponse(typing.NamedTuple):
+    error_name: str
+    error_value: str
+    traceback: str
 
 
 def write_blocks_hash(directory: pathlib.Path):
@@ -32,23 +50,6 @@ def write_blocks_hash(directory: pathlib.Path):
 
         hash_file_path = code_file_path.with_suffix(".hash")
         hash_file_path.write_text(total_hash.hexdigest())
-
-
-class CodeBlock(typing.NamedTuple):
-    path: pathlib.Path
-    language: str
-    session: str = None
-    kernel: str = None
-
-
-class OutputResponse(typing.NamedTuple):
-    text: str
-
-
-class ErrorResponse(typing.NamedTuple):
-    error_name: str
-    error_value: str
-    traceback: str
 
 
 def format_traceback(traceback: str) -> str:
@@ -76,9 +77,6 @@ def iter_code_blocks(file_path: pathlib.Path) -> typing.Iterator[CodeBlock]:
             language = row['language']
             session = row['session']
             yield CodeBlock(path, language, session, kernel)
-
-
-SESSION_INFO_TYPE = typing.Tuple[str, typing.Optional[str]]
 
 
 class SessionKernelManager:

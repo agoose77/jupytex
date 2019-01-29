@@ -21,7 +21,7 @@ def main():
 
     # Cleaner script
     clean_parser = subparsers.add_parser("clean")
-    clean_parser.add_argument("-d", "--directory", default=pathlib.Path.cwd(), type=pathlib.Path)
+    clean_parser.add_argument("-f", "--full", action="store_true")
     clean_parser.set_defaults(handler=clean, requires_sys_args=True)
 
     # Make script
