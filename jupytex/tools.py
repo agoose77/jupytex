@@ -32,7 +32,6 @@ def install():
     for name in DATA_NAMES:
         print(f"Copying {name}")
         source = resources.open_text('jupytex', name).read()
-        target =  (cwd / name)
-        target.write_text(source)
+        (cwd / name).write_text(source)
 
     print("Done!")

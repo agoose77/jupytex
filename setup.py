@@ -22,7 +22,7 @@ setuptools.setup(
             'jupytex-hash=jupytex.make:write_hash',
         ],
     },
-    install_requires=['colorama'],
+    install_requires=['colorama', 'jupyter_client'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
