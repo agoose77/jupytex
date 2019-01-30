@@ -32,4 +32,6 @@ Run `jupytex clean` (which is a pass-through to `latexmk -c` or `latexmk -C`) to
 1. `latexmk` performs a new pass for the dependencies upon `\jobname.timestamp`
 
 ## Configuration
-Each code block must be given a language. One can specify the Jupyter kernel name with a `kernel` key parameter, which will be used instead of the language if present. In addition, a `session` key may be passed to create a distinct kernel for associated with the kernel-session pair. One can also access an existing kernel, using the `kernel` parameter, passing the name of a connection file.
+* Each code block must be given a language. 
+* One can specify the Jupyter kernel name with a `kernel` key parameter, which will be used instead of the language if present. One can also access an existing kernel, by passing the name of a connection file. 
+* A `session` key parameter may be passed to create a new kernel associated with the kernel-session pair.  If the `kernel` parameter is set to a connection file, then *this will create a new client to the same kernel*.
