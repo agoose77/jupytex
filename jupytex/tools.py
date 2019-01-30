@@ -4,18 +4,29 @@ import subprocess
 import typing
 from importlib import resources
 
+from . import data
+
 logger = logging.getLogger(__name__)
 
 DATA_NAMES = (".latexmkrc", "jupytex.sty")
 GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
 
 
+def get_resource_names(package: resources.Package) -> typing.Iterator[str]:
+    for name in resources.contents(package):
+        if name == "__init__.py":
+            continue
+
+        if resources.is_resource(package, name):
+            yield name
+
+
 def install(directory: pathlib.Path):
     logger.info(f"Installing Jupytex into {directory}")
 
-    for name in DATA_NAMES:
+    for name in get_resource_names(data):
         logger.info(f"Copying {name}")
-        source = resources.open_text('jupytex', name).read()
+        source = resources.read_text(data, name)
         (directory / name).write_text(source)
 
     logger.info("Done!")
@@ -23,10 +34,8 @@ def install(directory: pathlib.Path):
 
 def uninstall(directory: pathlib.Path):
     logger.info(f"Uninstalling Jupytex from {directory}")
-
-    for name in DATA_NAMES:
+    for name in get_resource_names(data):
         logger.info(f"Removing {name}")
-
         resource_path = directory / name
         if resource_path.exists():
             resource_path.unlink()

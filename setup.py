@@ -17,7 +17,7 @@ setuptools.setup(
             'jupytex=jupytex.__main__:main',
         ],
     },
-    install_requires=['colorama', 'jupyter_client'],
+    install_requires=['colorama', 'jupyter_client', 'jupyter'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
