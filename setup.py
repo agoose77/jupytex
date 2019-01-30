@@ -17,7 +17,7 @@ setuptools.setup(
             'jupytex=jupytex.__main__:main',
         ],
     },
-    install_requires=['colorama', 'jupyter_client', 'jupyter'],
+    install_requires=['colorama', 'jupyter_client', 'jupyter', 'importlib_resources'],
     python_requires='>=3.6',
     classifiers=[
         "Programming Language :: Python :: 3",
