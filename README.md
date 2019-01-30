@@ -13,14 +13,16 @@ Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the r
     ```
     See the configuration section for valid options in `opts`.
 5. Run `jupytex make` (which is a pass-through to `latexmk --shell-escape`) to invoke `latexmk`.
-6. Run `jupytex clean` (which is a pass-through to `latexmk -c` or `latexmk -C`) to remove both LaTeX and JupyTex-related run files.
-7. Run `jupytex uninstall` in LaTeX project directory (or provide an install directory with `-d DIR`) to remove the installed `.latexmkrc` and `jupytex.sty` files
 ### Example Python Script
 ```latex
 \begin{code}{python}[kernel=python3]
     print("$x + y = z$")
 \end{code}
 ```
+## Uninstallation
+Run `jupytex uninstall` in LaTeX project directory (or provide an install directory with `-d DIR`) to remove the installed `.latexmkrc` and `jupytex.sty` files
+## Cleaning
+Run `jupytex clean` (which is a pass-through to `latexmk -c` or `latexmk -C`) to remove both LaTeX and JupyTex-related run files.
 ## JupyTeX flow control
 1. `jupytex.sty` declares dependency upon `\jobname.timestamp`
 1. `jupytex.sty` macro writes code blocks to numbered `.code` files and attempts to include results
