@@ -2,14 +2,11 @@ import logging
 import pathlib
 import subprocess
 import typing
-from importlib import resources
+import importlib_resources as resources
 
 from . import data
 
 logger = logging.getLogger(__name__)
-
-DATA_NAMES = (".latexmkrc", "jupytex.sty")
-GENERATED_PATTERNS = ("*.blocks", "*.hash", "*.timestamp", "*.code", "*.result")
 
 
 def get_resource_names(package: resources.Package) -> typing.Iterator[str]:
@@ -49,4 +46,4 @@ def make(sys_args: typing.List[str]):
 
 def clean(sys_args: typing.List[str], full: bool = False):
     clean_type = "-C" if full else "-c"
-    subprocess.run(['latexmk', clean_type, *sys_args])
+    subprocess.run(["latexmk", clean_type, *sys_args])
