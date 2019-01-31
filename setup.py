@@ -20,8 +20,12 @@ setuptools.setup(
     install_requires=['colorama', 'jupyter_client', 'jupyter', 'importlib_resources'],
     python_requires='>=3.6',
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Framework :: Jupyter",
+        "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Topic :: Text Processing :: Markup :: LaTeX"
     ],
 )
