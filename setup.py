@@ -13,6 +13,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/agoose77/jupytex",
     packages=setuptools.find_packages(),
+    package_data={
+        'jupytex.data': ['*', '.*']
+    },
     entry_points={'console_scripts': [
             'jupytex=jupytex.__main__:main',
         ],
