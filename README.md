@@ -2,7 +2,7 @@
 Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the results. Similar in concept to [PythonTex](https://github.com/gpoore/PythonTex), but focuses on code _execution_, and avoids any language specific features.
 
 ## How to use
-1. Install JupyTeX with `pip install jupytex`
+1. *Install JupyTeX* with `pip install jupytex`
 2. Run `jupytex install` in LaTeX project directory (or provide an install directory with `-d DIR`) to create the necessary `.latexmkrc` and `jupytex.sty` files
 3. Add `\usepackage{jupytex}` to the document header
 4. Declare code environments with
