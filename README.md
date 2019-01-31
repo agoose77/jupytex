@@ -1,29 +1,30 @@
 # JupyTeX
 Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the results. Similar in concept to [PythonTex](https://github.com/gpoore/PythonTex), but focuses on code _execution_, and avoids any language specific features.
 
-## How to use
-1. *Install JupyTeX* with `pip install jupytex`
-2. Run `jupytex install` in LaTeX project directory (or provide an install directory with `-d DIR`) to create the necessary `.latexmkrc` and `jupytex.sty` files
-3. Add `\usepackage{jupytex}` to the document header
-4. Declare code environments with
+Install with `pip install jupytex`.
+
+## How to Use
+1. Run `jupytex install` in LaTeX project directory (or provide an install directory with `-d DIR`) to create the necessary `.latexmkrc` and `jupytex.sty` files
+2. Add `\usepackage{jupytex}` to the document header
+3. Declare code environments with
     ```latex
     \begin{code}{language}[opts]
         Some source code
     \end{code}
     ```
     See the configuration section for valid options in `opts`.
-5. Run `jupytex make` (which is a pass-through to `latexmk --shell-escape`) to invoke `latexmk`.
+4. Run `jupytex make` (which is a pass-through to `latexmk --shell-escape`) to invoke `latexmk`.
 ### Example Python Script
 ```latex
 \begin{code}{python}[kernel=python3]
     print("$x + y = z$")
 \end{code}
 ```
-## Uninstallation
+## Removing from Project
 Run `jupytex uninstall` in LaTeX project directory (or provide an install directory with `-d DIR`) to remove the installed `.latexmkrc` and `jupytex.sty` files
-## Cleaning
+## Cleaning Files
 Run `jupytex clean` (which is a pass-through to `latexmk -c` or `latexmk -C`) to remove both LaTeX and JupyTex-related run files.
-## JupyTeX flow control
+## Flow Control
 1. `jupytex.sty` declares dependency upon `\jobname.timestamp`
 1. `jupytex.sty` macro writes code blocks to numbered `.code` files and attempts to include results
 1. Code 'blocks' are written to a `\jobname.blocks` csv file
