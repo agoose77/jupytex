@@ -1,5 +1,6 @@
 # JupyTeX
 [![pypi-badge][]][pypi]
+
 [pypi-badge]: https://img.shields.io/pypi/v/jupytex
 [pypi]: https://pypi.org/project/jupytex
 
