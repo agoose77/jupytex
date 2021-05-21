@@ -1,4 +1,8 @@
 # JupyTeX
+[![pypi-badge][]][pypi]
+[pypi-badge]: https://img.shields.io/pypi/v/jupytex
+[pypi]: https://pypi.org/project/jupytex
+
 Provides Jupyter-backed execution of LaTeX `code` environments, and embeds the results. Similar in concept to [PythonTex](https://github.com/gpoore/PythonTex), but focuses on code _execution_, and avoids any language specific features.
 
 Install with `pip install jupytex`.
